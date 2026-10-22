@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Estudiantes</title>
+</head>
+<body>
+  <h1>Registro de estudiantes</h1>
+
+  <form id="formulario">
+    <input type="text" id="nombre" placeholder="Nombre" required>
+    <input type="text" id="carrera" placeholder="Carrera" required>
+    <button type="submit">Guardar</button>
+  </form>
+
+  <h2>Lista de estudiantes</h2>
+  <ul id="lista"></ul>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const supabase = createClient('https://mqrkihjpgfavgjfglmur.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xcmtpaGpwZ2ZhdmdqZmdsbXVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2NDU1MDQsImV4cCI6MjEwODIyMTUwNH0.-NphsUrCeNT9K8me85-Vnb8WfiSctBMhXVorUHnIXrU'
+    async function cargarLista() {
+      const { data, error } = await supabase.from('estudiantes').select('*')
+      const lista = document.getElementById('lista')
+      lista.innerHTML = ''
+      if (error) { lista.textContent = 'Error al cargar'; return }
+      data.forEach(e => {
+        const li = document.createElement('li')
+        li.textContent = `${e.nombre} - ${e.carrera}`
+        lista.appendChild(li)
+      })
+    }
+
+    document.getElementById('formulario').addEventListener('submit', async (ev) => {
+      ev.preventDefault()
+      const nombre = document.getElementById('nombre').value
+      const carrera = document.getElementById('carrera').value
+      const { error } = await supabase.from('estudiantes').insert([{ nombre, carrera }])
+      if (error) { alert('Error: ' + error.message); return }
+      ev.target.reset()
+      cargarLista()
+    })
+
+    cargarLista()
+  </script>
+</body>
+</html>

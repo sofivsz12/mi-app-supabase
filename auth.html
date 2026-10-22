@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Autenticación</title>
+</head>
+<body>
+  <h1>Iniciar sesión</h1>
+  <input type="email" id="correo" placeholder="Correo">
+  <input type="password" id="clave" placeholder="Contraseña (mín. 6 caracteres)">
+  <button id="registrar">Registrarse</button>
+  <button id="entrar">Entrar</button>
+  <button id="salir">Cerrar sesión</button>
+  <p id="estado">Sin sesión</p>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const supabase = createClient('https://mqrkihjpgfavgjfglmur.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xcmtpaGpwZ2ZhdmdqZmdsbXVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2NDU1MDQsImV4cCI6MjEwODIyMTUwNH0.-NphsUrCeNT9K8me85-Vnb8WfiSctBMhXVorUHnIXrU')
+    const estado = document.getElementById('estado')
+
+    document.getElementById('registrar').onclick = async () => {
+      const email = document.getElementById('correo').value
+      const password = document.getElementById('clave').value
+      const { error } = await supabase.auth.signUp({ email, password })
+      estado.textContent = error ? 'Error: ' + error.message : 'Usuario registrado'
+    }
+
+    document.getElementById('entrar').onclick = async () => {
+      const email = document.getElementById('correo').value
+      const password = document.getElementById('clave').value
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      estado.textContent = error ? 'Error: ' + error.message : 'Sesión iniciada: ' + data.user.email
+    }
+
+    document.getElementById('salir').onclick = async () => {
+      await supabase.auth.signOut()
+      estado.textContent = 'Sesión cerrada'
+    }
+  </script>
+</body>
+</html>
